@@ -1,4 +1,4 @@
-Originally adopted from [kubernetes contrib]
+Forked from [kubernetes contrib]
 
 # Usage
 ## without docker compose
