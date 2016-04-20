@@ -6,7 +6,7 @@ Originally adopted from [kubernetes contrib]
 docker volume create -d local --name website_sources
 
 docker run --name git-sync -d  \
-    -e GIT_SYNC_REPO=https://github.com/anthonybrown/demoBoot3.git \
+    -e GIT_SYNC_REPO=https://github.com/openweb-nl/website-static.git \
     -e GIT_SYNC_DEST=/git \
     -e GIT_SYNC_BRANCH=master \
     -v website_sources:/git openweb/git-sync:0.0.1
