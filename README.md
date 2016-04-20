@@ -9,6 +9,7 @@ docker run --name git-sync -d  \
     -e GIT_SYNC_REPO=https://github.com/openweb-nl/website-static.git \
     -e GIT_SYNC_DEST=/git \
     -e GIT_SYNC_BRANCH=master \
+    -e GIT_SYNC_REV=FETCH_HEAD \
     -v website_sources:/git openweb/git-sync:0.0.1
 
 docker run --name nginx \
@@ -36,6 +37,7 @@ services:
       GIT_SYNC_REPO: "https://github.com/openweb-nl/website-static.git"
       GIT_SYNC_DEST: "/git"
       GIT_SYNC_BRANCH: "master"
+      GIT_SYNC_REV: "FETCH_HEAD"
     volumes:
       - website_sources:/git:z
     restart: always
