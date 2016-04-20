@@ -12,7 +12,7 @@ docker run --name git-sync -d  \
     -v website_sources:/git openweb/git-sync:0.0.1
 
 docker run --name nginx \
-    -d -p 8386:80 -v website_sources:/usr/share/nginx/html nginx
+    -d -p 8080:80 -v website_sources:/usr/share/nginx/html nginx
 ```
 ## with docker compose
 
