@@ -5,12 +5,20 @@ This has been forked from [kubernetes contrib] and now do support webhooks.
 ## Usage
 
 __Table of content__
+
 - [Git-Sync](#git-sync)
   - [Usage](#usage)
+  - [Build The Image](#build-the-image)
   - [Without docker-compose using Webhook](#without-docker-compose-using-webhook)
   - [Without docker-dompose](#without-docker-dompose)
   - [With docker-compose](#with-docker-compose)
   - [With docker-compose using Webhook](#with-docker-compose-using-webhook)
+
+## Build The Image
+
+Navigate to the directory where the Dockerfile is located then execute follwing
+
+    docker build -t git-sync .
 
 ## Without docker-compose using Webhook
 
@@ -27,7 +35,7 @@ docker run --name git-sync -d  \
     -e GIT_SYNC_BRANCH=master \
     -e GIT_SYNC_REV=FETCH_HEAD \
     -e GIT_SYNC_WEBHOOK=1 \
-    -v website_sources:/git openweb/git-sync:0.0.1
+    -v website_sources:/git git-sync
 
 docker run --name nginx \
     -d -p 8080:80 -v website_sources:/usr/share/nginx/html nginx
@@ -44,7 +52,7 @@ docker run --name git-sync -d  \
     -e GIT_SYNC_BRANCH=master \
     -e GIT_SYNC_REV=FETCH_HEAD \
     -e GIT_SYNC_WAIT=10 \
-    -v website_sources:/git openweb/git-sync:0.0.1
+    -v website_sources:/git git-sync
 
 docker run --name nginx \
     -d -p 8080:80 -v website_sources:/usr/share/nginx/html nginx
@@ -68,13 +76,13 @@ services:
       - git-sync
     restart: always
   git-sync:
-    image: openweb/git-sync:0.0.1
+    image: git-sync
     environment:
-      - GIT_SYNC_REPO= "https://github.com/openweb-nl/website-static.git"
-      - GIT_SYNC_DEST= "/git"
-      - GIT_SYNC_BRANCH= "master"
-      - GIT_SYNC_REV= "FETCH_HEAD"
-      - GIT_SYNC_WAIT= "10"
+      - GIT_SYNC_REPO=https://github.com/openweb-nl/website-static.git
+      - GIT_SYNC_DEST=/git
+      - GIT_SYNC_BRANCH=master
+      - GIT_SYNC_REV=FETCH_HEAD
+      - GIT_SYNC_WAIT=10
     volumes:
       - website_sources:/git:z
     restart: always
@@ -107,13 +115,13 @@ services:
       - git-sync
     restart: always
   git-sync:
-    image: openweb/git-sync:0.0.1
+    image: git-sync
     environment:
-      - GIT_SYNC_REPO= "https://github.com/openweb-nl/website-static.git"
-      - GIT_SYNC_DEST= "/git"
-      - GIT_SYNC_BRANCH= "master"
-      - GIT_SYNC_REV= "FETCH_HEAD"
-      - GIT_SYNC_WEBHOOK "1"
+      - GIT_SYNC_REPO=https://github.com/openweb-nl/website-static.git
+      - GIT_SYNC_DEST=/git
+      - GIT_SYNC_BRANCH=master
+      - GIT_SYNC_REV=FETCH_HEAD
+      - GIT_SYNC_WEBHOOK=1
     volumes:
       - website_sources:/git:z
     restart: always
