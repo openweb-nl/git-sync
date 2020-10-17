@@ -16,12 +16,13 @@ limitations under the License.
 
 // git-sync is a command that pull a git repository to a local directory.
 
-package main // import "k8s.io/contrib/git-sync"
+package main
 
 import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
@@ -30,6 +31,7 @@ import (
 	"time"
 )
 
+var flWebhook = flag.Int("webhook", envInt("GIT_SYNC_WEBHOOK", 0), "Flag to whether start the webhook listener or not")
 var flRepo = flag.String("repo", envString("GIT_SYNC_REPO", ""), "git repo url")
 var flBranch = flag.String("branch", envString("GIT_SYNC_BRANCH", "master"), "git branch")
 var flRev = flag.String("rev", envString("GIT_SYNC_REV", "HEAD"), "git rev")
@@ -57,6 +59,17 @@ func envInt(key string, def int) int {
 
 const usage = "usage: GIT_SYNC_REPO= GIT_SYNC_DEST= [GIT_SYNC_BRANCH= GIT_SYNC_WAIT=] git-sync -repo GIT_REPO_URL -dest PATH [-branch -wait]"
 
+func syncRepoOnWebhook(w http.ResponseWriter, r *http.Request) {
+	var err error = syncRepo(*flRepo, *flDest, *flBranch, *flRev)
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+}
+func handleRequest() {
+	http.HandleFunc("/", syncRepoOnWebhook)
+	log.Fatal(http.ListenAndServe(":8081", nil))
+}
+
 func main() {
 	flag.Parse()
 	if *flRepo == "" || *flDest == "" {
@@ -66,13 +79,19 @@ func main() {
 	if _, err := exec.LookPath("git"); err != nil {
 		log.Fatalf("required git executable not found: %v", err)
 	}
-	for {
-		if err := syncRepo(*flRepo, *flDest, *flBranch, *flRev); err != nil {
-			log.Fatalf("error syncing repo: %v", err)
+
+	if *flWebhook > 0 {
+		handleRequest()
+	} else {
+
+		for {
+			if err := syncRepo(*flRepo, *flDest, *flBranch, *flRev); err != nil {
+				log.Fatalf("error syncing repo: %v", err)
+			}
+			log.Printf("wait %d seconds", *flWait)
+			time.Sleep(time.Duration(*flWait) * time.Second)
+			log.Println("done")
 		}
-		log.Printf("wait %d seconds", *flWait)
-		time.Sleep(time.Duration(*flWait) * time.Second)
-		log.Println("done")
 	}
 }
 
