@@ -1,8 +1,12 @@
-Forked from [kubernetes contrib]
+# Git-Sync
 
-# Usage
+This has been forked from [kubernetes contrib] and now do support webhooks.
 
-- [Usage](#usage)
+## Usage
+
+__Table of content__
+- [Git-Sync](#git-sync)
+  - [Usage](#usage)
   - [Without docker-compose using Webhook](#without-docker-compose-using-webhook)
   - [Without docker-dompose](#without-docker-dompose)
   - [With docker-compose](#with-docker-compose)
