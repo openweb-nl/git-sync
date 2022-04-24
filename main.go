@@ -35,6 +35,7 @@ var flBranch = flag.String("branch", envString("GIT_SYNC_BRANCH", "master"), "gi
 var flRev = flag.String("rev", envString("GIT_SYNC_REV", "HEAD"), "git rev")
 var flDest = flag.String("dest", envString("GIT_SYNC_DEST", ""), "destination path")
 var flWait = flag.Int("wait", envInt("GIT_SYNC_WAIT", 0), "number of seconds to wait before exit")
+var flOneTime = flag.Bool("onetime", envBool("GIT_SYNC_ONE_TIME", false), "run once instead of polling for changes (overrides wait when true)")
 
 func envString(key, def string) string {
 	if env := os.Getenv(key); env != "" {
@@ -55,7 +56,19 @@ func envInt(key string, def int) int {
 	return def
 }
 
-const usage = "usage: GIT_SYNC_REPO= GIT_SYNC_DEST= [GIT_SYNC_BRANCH= GIT_SYNC_WAIT=] git-sync -repo GIT_REPO_URL -dest PATH [-branch -wait]"
+func envBool(key string, def bool) bool {
+	if env := os.Getenv(key); env != "" {
+		val, err := strconv.ParseBool(env)
+		if err != nil {
+			log.Printf("invalid value for %q: using default: %t", key, def)
+			return def
+		}
+		return val
+	}
+	return def
+}
+
+const usage = "usage: GIT_SYNC_REPO= GIT_SYNC_DEST= [GIT_SYNC_BRANCH= GIT_SYNC_WAIT= GIT_SYNC_ONE_TIME=] git-sync -repo GIT_REPO_URL -dest PATH [-branch -wait]"
 
 func main() {
 	flag.Parse()
@@ -70,6 +83,11 @@ func main() {
 		if err := syncRepo(*flRepo, *flDest, *flBranch, *flRev); err != nil {
 			log.Fatalf("error syncing repo: %v", err)
 		}
+
+		if *flOneTime {
+			break
+		}
+
 		log.Printf("wait %d seconds", *flWait)
 		time.Sleep(time.Duration(*flWait) * time.Second)
 		log.Println("done")
